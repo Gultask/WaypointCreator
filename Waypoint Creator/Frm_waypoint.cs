@@ -37,9 +37,21 @@ namespace Frm_waypoint
 
         private bool _isDragging = false;
         private Point _lastMousePosition;
-        private float _zoomSensitivity = 0.1f;
-        private float _minZoom = 0.1f;
-        private float _maxZoom = 10f;
+
+        /// <summary>Where the button went down. A click that slid a pixel or two on the way up
+        /// is still a click, not a pan, and picking a capture off the map depends on knowing
+        /// the difference.</summary>
+        private Point _mouseDownAt;
+        private bool _dragMoved;
+
+        /// <summary>One wheel notch multiplies the zoom by this, with Ctrl for finer steps.
+        /// It used to add a flat 0.1, which doubles the zoom when you are far out and moves it
+        /// two percent when you are close in - the reason zooming felt like it had stopped
+        /// working exactly when you wanted it most.</summary>
+        private const float ZoomStep = 1.25f;
+        private const float ZoomStepFine = 1.06f;
+        private float _minZoom = 0.02f;
+        private float _maxZoom = 64f;
         private SKColor _backgroundColor = SKColors.LightGray;
         private List<string[]> _clip = new List<string[]>();
         private List<string> _originalListBoxItems = new List<string>();
@@ -83,8 +95,8 @@ namespace Frm_waypoint
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             InitializeComponent();
 
-            MapManager.Initialize(Path.Combine("world", "minimaps"));
-            MapManager.LoadMaps(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "map.csv"));
+            MapManager.Initialize(Properties.Settings.Default.mapRoot);
+            MapManager.LoadMaps(MapManager.FindMapCsv(Properties.Settings.Default.mapRoot));
 
             _mapControl = skiaMapControl;
             _mapControl.PaintSurface += MapControl_PaintSurface;
@@ -100,6 +112,8 @@ namespace Frm_waypoint
             _mapControl.MouseWheel += MapControl_MouseWheel;
 
             toolStripTextBoxEntry.KeyDown += ToolStripTextBoxEntry_KeyDown;
+
+            InitCaptureList();
         }
 
         private void MapControl_MouseDown(object sender, MouseEventArgs e)
@@ -107,6 +121,8 @@ namespace Frm_waypoint
             if (e.Button == MouseButtons.Left)
             {
                 _isDragging = true;
+                _dragMoved = false;
+                _mouseDownAt = e.Location;
                 _lastMousePosition = e.Location;
                 _mapControl.Cursor = Cursors.Hand;
             }
@@ -116,6 +132,10 @@ namespace Frm_waypoint
         {
             if (_isDragging)
             {
+                if (Math.Abs(e.Location.X - _mouseDownAt.X) > 3 ||
+                    Math.Abs(e.Location.Y - _mouseDownAt.Y) > 3)
+                    _dragMoved = true;
+
                 var delta = new Point(e.Location.X - _lastMousePosition.X, e.Location.Y - _lastMousePosition.Y);
 
                 // Convert screen delta to world delta
@@ -140,6 +160,14 @@ namespace Frm_waypoint
                 float maxCenterY = mapBounds.Bottom - (visibleRect.Height / 2);
                 float minCenterY = mapBounds.Top + (visibleRect.Height / 2);
 
+                // Zoomed out far enough to see past the edges there is no range left to clamp
+                // into, and the min/max cross over and throw the view into a corner. Pin to the
+                // middle of the map instead.
+                if (maxCenterX < minCenterX)
+                    minCenterX = maxCenterX = (mapBounds.Left + mapBounds.Right) / 2f;
+                if (maxCenterY < minCenterY)
+                    minCenterY = maxCenterY = (mapBounds.Top + mapBounds.Bottom) / 2f;
+
                 newCenter.X = Math.Max(minCenterX, Math.Min(maxCenterX, newCenter.X));
                 newCenter.Y = Math.Max(minCenterY, Math.Min(maxCenterY, newCenter.Y));
 
@@ -147,14 +175,23 @@ namespace Frm_waypoint
                 _lastMousePosition = e.Location;
                 _mapControl.Invalidate();
             }
+            else if (_dbMode)
+            {
+                // The rings and dots are targets, so say so before the click rather than after.
+                _mapControl.Cursor = HitTestCapture(e.Location, true) >= 0
+                    ? Cursors.Hand : Cursors.Default;
+            }
         }
 
         private void MapControl_MouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
+                var wasDrag = _dragMoved;
                 _isDragging = false;
+                _dragMoved = false;
                 _mapControl.Cursor = Cursors.Default;
+                if (!wasDrag) HandleMapClick(e);
             }
         }
 
@@ -166,8 +203,11 @@ namespace Frm_waypoint
             // Get world position before zoom
             var worldPos = ScreenToWorld(mousePos);
 
-            float zoomDelta = e.Delta > 0 ? _zoomSensitivity : -_zoomSensitivity;
-            float newZoom = _mapProvider.Zoom + zoomDelta;
+            // Multiply, do not add: a notch has to mean the same thing at every scale, and a
+            // high resolution wheel or a trackpad sends fractions of the 120 unit notch.
+            var notches = e.Delta / 120f;
+            var step = (ModifierKeys & Keys.Control) == Keys.Control ? ZoomStepFine : ZoomStep;
+            float newZoom = _mapProvider.Zoom * (float)Math.Pow(step, notches);
             _mapProvider.Zoom = Math.Max(_minZoom, Math.Min(newZoom, _maxZoom));
 
             // Get world position after zoom
@@ -206,8 +246,15 @@ namespace Frm_waypoint
                 canvas.ClipRect(mapBounds);
 
                 DrawTiles(canvas);
-                DrawPaths(canvas);
-                DrawMarkers(canvas);
+                if (_dbMode)
+                {
+                    DrawCaptures(canvas);
+                }
+                else
+                {
+                    DrawPaths(canvas);
+                    DrawMarkers(canvas);
+                }
             }
         }
 
@@ -216,9 +263,12 @@ namespace Frm_waypoint
             int vw = _mapControl.Width;
             int vh = _mapControl.Height;
 
-            // Reverse transformation pipeline
-            float worldX = (screenPoint.X - vw / 2f) / _mapProvider.Zoom;
-            float worldY = -(screenPoint.Y - vh / 2f) / _mapProvider.Zoom;
+            // The exact reverse of ApplyViewTransform: translate to the middle, scale, then
+            // translate by the centre. This used to drop the centre and flip Y, which cancels
+            // out when you only take a difference but sends the point under the cursor sliding
+            // away as you zoom - and makes hit testing impossible.
+            float worldX = (screenPoint.X - vw / 2f) / _mapProvider.Zoom + _mapProvider.Center.X;
+            float worldY = (screenPoint.Y - vh / 2f) / _mapProvider.Zoom + _mapProvider.Center.Y;
 
             return new PointF(worldX, worldY);
         }
@@ -247,6 +297,9 @@ namespace Frm_waypoint
                 try
                 {
                     waypoints.Clear();
+                    _dbMode = false;
+                    listBox.Visible = true;
+                    checkedListCaptures.Visible = false;
 
                     await Task.Run(() =>
                     {
@@ -356,8 +409,7 @@ namespace Frm_waypoint
 
             foreach (var pathData in _paths)
             {
-                pathData.Paint = pathPaint;
-                canvas.DrawPath(pathData.Path, pathData.Paint);
+                canvas.DrawPath(pathData.Path, pathData.Paint ?? pathPaint);
             }
         }
 

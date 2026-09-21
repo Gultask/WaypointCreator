@@ -20,6 +20,24 @@ namespace Frm_waypoint
             txt_Password.Text = settings.password;
             txt_Database.Text = settings.database;
             txt_Port.Text = settings.port;
+            txt_Ingest.Text = settings.ingestDatabase;
+            txt_MapRoot.Text = settings.mapRoot;
+        }
+
+        private void Btn_BrowseMaps_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new FolderBrowserDialog
+            {
+                Description = "Pick the folder holding one subfolder per map "
+                              + "(Azeroth, Kalimdor, ...), normally world\\minimaps.",
+                ShowNewFolderButton = false
+            })
+            {
+                if (System.IO.Directory.Exists(txt_MapRoot.Text))
+                    dlg.SelectedPath = txt_MapRoot.Text;
+                if (dlg.ShowDialog(this) == DialogResult.OK)
+                    txt_MapRoot.Text = dlg.SelectedPath;
+            }
         }
 
         private void Btn_OK_Click(object sender, EventArgs e)
@@ -33,6 +51,7 @@ namespace Frm_waypoint
                     if (chkBox_SaveValues.Checked)
                         SaveConnectionSettings();
 
+                    SaveViewerSettings();
                     Properties.Settings.Default.UsingDB = true;
                     Properties.Settings.Default.Save();
 
@@ -69,8 +88,17 @@ namespace Frm_waypoint
             settings.Save();
         }
 
+        private void SaveViewerSettings()
+        {
+            var settings = Properties.Settings.Default;
+            settings.ingestDatabase = txt_Ingest.Text.Trim();
+            settings.mapRoot = txt_MapRoot.Text.Trim();
+            settings.Save();
+        }
+
         private void Btn_Cancel_Click(object sender, EventArgs e)
         {
+            SaveViewerSettings();
             Properties.Settings.Default.UsingDB = false;
             Properties.Settings.Default.Save();
             LoadMain();

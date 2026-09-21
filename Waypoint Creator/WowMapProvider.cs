@@ -28,12 +28,20 @@ namespace Frm_waypoint
 
         public bool IsMapLoaded => _currentMapConfig != null;
 
+        /// <summary>
+        /// Instance interiors are WMO minimaps, not a grid of terrain tiles, so 37 of the maps
+        /// the corpus holds movement on will never have art. Give them the standard 64x64
+        /// frame anyway: the paths are the thing being looked at and they are perfectly
+        /// readable over an empty background.
+        /// </summary>
+        private static readonly MapConfig Blank = new MapConfig { Id = -1, Directory = null };
+
         public void LoadMap(int mapId)
         {
             if (_currentMapId == mapId) return;
 
             _currentMapId = mapId;
-            _currentMapConfig = MapManager.GetMapConfig(mapId);
+            _currentMapConfig = MapManager.GetMapConfig(mapId) ?? Blank;
 
             if (!_mapTiles.ContainsKey(mapId))
             {
@@ -46,7 +54,7 @@ namespace Frm_waypoint
             var tiles = new List<MapTile>();
             string mapPath = MapManager.GetTilePath(mapId);
 
-            if (!Directory.Exists(mapPath))
+            if (string.IsNullOrEmpty(mapPath) || !Directory.Exists(mapPath))
             {
                 Console.WriteLine($"[ERROR] Map directory not found: {mapPath}");
                 return tiles;

@@ -217,6 +217,30 @@ namespace Frm_waypoint.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("wpp_ingest2")]
+        public string ingestDatabase {
+            get {
+                return ((string)(this["ingestDatabase"]));
+            }
+            set {
+                this["ingestDatabase"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string mapRoot {
+            get {
+                return ((string)(this["mapRoot"]));
+            }
+            set {
+                this["mapRoot"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         public global::System.Drawing.Color ConnectorLineColour {
             get {
                 return ((global::System.Drawing.Color)(this["ConnectorLineColour"]));

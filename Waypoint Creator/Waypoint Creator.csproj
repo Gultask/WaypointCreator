@@ -188,8 +188,16 @@
     <Compile Include="Frm_settings.Designer.cs">
       <DependentUpon>Frm_settings.cs</DependentUpon>
     </Compile>
+    <Compile Include="Frm_pick.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SniffDb.cs" />
+    <Compile Include="PathFilters.cs" />
     <Compile Include="Frm_waypoint.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Frm_waypoint.Db.cs">
+      <DependentUpon>Frm_waypoint.cs</DependentUpon>
     </Compile>
     <Compile Include="Frm_waypoint.Designer.cs">
       <DependentUpon>Frm_waypoint.cs</DependentUpon>
@@ -263,6 +271,15 @@
   <Import Project="..\packages\SkiaSharp.NativeAssets.Win32.3.119.0\build\net462\SkiaSharp.NativeAssets.Win32.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.Win32.3.119.0\build\net462\SkiaSharp.NativeAssets.Win32.targets')" />
   <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" />
   <Import Project="..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.119.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets" Condition="Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.119.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" />
+  <!-- libSkiaSharp is a native DLL and SkiaSharp fails at the first paint without it. The
+       NuGet targets link it into x64\ and x86\, which the loader never looks in, so the batch
+       file puts it beside the executable as well. -->
+  <Target Name="CopySkiaSharpNatives" AfterTargets="Build">
+    <Exec Command="&quot;$(ProjectDir)..\copy_skiasharp_natives.bat&quot; &quot;$(TargetDir)&quot; &quot;$(ProjectDir)&quot;"
+          Condition="Exists('$(ProjectDir)..\copy_skiasharp_natives.bat')"
+          ContinueOnError="true" />
+  </Target>
+
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

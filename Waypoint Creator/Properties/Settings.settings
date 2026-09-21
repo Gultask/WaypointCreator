@@ -50,6 +50,12 @@
     <Setting Name="CPP" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="ingestDatabase" Type="System.String" Scope="User">
+      <Value Profile="(Default)">wpp_ingest2</Value>
+    </Setting>
+    <Setting Name="mapRoot" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
     <Setting Name="ConnectorLineColour" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)" />
     </Setting>

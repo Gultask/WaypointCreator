@@ -41,6 +41,11 @@
             this.txt_Password = new System.Windows.Forms.TextBox();
             this.txt_Username = new System.Windows.Forms.TextBox();
             this.txt_Host = new System.Windows.Forms.TextBox();
+            this.lbl_Ingest = new System.Windows.Forms.Label();
+            this.txt_Ingest = new System.Windows.Forms.TextBox();
+            this.lbl_MapRoot = new System.Windows.Forms.Label();
+            this.txt_MapRoot = new System.Windows.Forms.TextBox();
+            this.btn_BrowseMaps = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lbl_Port
@@ -165,7 +170,51 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(216, 227);
+            //
+            // lbl_Ingest
+            //
+            this.lbl_Ingest.AutoSize = true;
+            this.lbl_Ingest.Location = new System.Drawing.Point(12, 222);
+            this.lbl_Ingest.Name = "lbl_Ingest";
+            this.lbl_Ingest.Size = new System.Drawing.Size(120, 13);
+            this.lbl_Ingest.TabIndex = 20;
+            this.lbl_Ingest.Text = "Ingest database (raws)";
+            //
+            // txt_Ingest
+            //
+            this.txt_Ingest.Location = new System.Drawing.Point(12, 238);
+            this.txt_Ingest.Name = "txt_Ingest";
+            this.txt_Ingest.Size = new System.Drawing.Size(190, 20);
+            this.txt_Ingest.TabIndex = 21;
+            this.txt_Ingest.Text = "wpp_ingest2";
+            //
+            // lbl_MapRoot
+            //
+            this.lbl_MapRoot.AutoSize = true;
+            this.lbl_MapRoot.Location = new System.Drawing.Point(12, 265);
+            this.lbl_MapRoot.Name = "lbl_MapRoot";
+            this.lbl_MapRoot.Size = new System.Drawing.Size(220, 13);
+            this.lbl_MapRoot.TabIndex = 22;
+            this.lbl_MapRoot.Text = "Minimap tiles (blank = world\\minimaps beside exe)";
+            //
+            // txt_MapRoot
+            //
+            this.txt_MapRoot.Location = new System.Drawing.Point(12, 281);
+            this.txt_MapRoot.Name = "txt_MapRoot";
+            this.txt_MapRoot.Size = new System.Drawing.Size(270, 20);
+            this.txt_MapRoot.TabIndex = 23;
+            //
+            // btn_BrowseMaps
+            //
+            this.btn_BrowseMaps.Location = new System.Drawing.Point(288, 279);
+            this.btn_BrowseMaps.Name = "btn_BrowseMaps";
+            this.btn_BrowseMaps.Size = new System.Drawing.Size(80, 23);
+            this.btn_BrowseMaps.TabIndex = 24;
+            this.btn_BrowseMaps.Text = "Browse...";
+            this.btn_BrowseMaps.UseVisualStyleBackColor = true;
+            this.btn_BrowseMaps.Click += new System.EventHandler(this.Btn_BrowseMaps_Click);
+            //
+            this.ClientSize = new System.Drawing.Size(380, 318);
             this.ControlBox = false;
             this.Controls.Add(this.btn_OK);
             this.Controls.Add(this.btn_Cancel);
@@ -180,6 +229,11 @@
             this.Controls.Add(this.txt_Password);
             this.Controls.Add(this.txt_Database);
             this.Controls.Add(this.txt_Port);
+            this.Controls.Add(this.lbl_Ingest);
+            this.Controls.Add(this.txt_Ingest);
+            this.Controls.Add(this.lbl_MapRoot);
+            this.Controls.Add(this.txt_MapRoot);
+            this.Controls.Add(this.btn_BrowseMaps);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
@@ -208,6 +262,11 @@
         internal System.Windows.Forms.TextBox txt_Password;
         internal System.Windows.Forms.TextBox txt_Username;
         internal System.Windows.Forms.TextBox txt_Host;
+        internal System.Windows.Forms.Label lbl_Ingest;
+        internal System.Windows.Forms.TextBox txt_Ingest;
+        internal System.Windows.Forms.Label lbl_MapRoot;
+        internal System.Windows.Forms.TextBox txt_MapRoot;
+        internal System.Windows.Forms.Button btn_BrowseMaps;
 
     }
 }

@@ -47,6 +47,7 @@ namespace Frm_waypoint
             this.tabEditor = new System.Windows.Forms.TabPage();
             this.skiaMapControl = new SKGLControl();
             this.listBox = new System.Windows.Forms.ListBox();
+            this.checkedListCaptures = new System.Windows.Forms.CheckedListBox();
             this.gridWaypoint = new System.Windows.Forms.DataGridView();
             this.gridColumn_no = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.gridColumn_x = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -73,6 +74,16 @@ namespace Frm_waypoint
             this.toolStripButtonSettings = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonLoadSniff = new System.Windows.Forms.ToolStripButton();
             this.toolStripLabelRange = new System.Windows.Forms.ToolStripLabel();
+            this.toolStripButtonLoadDb = new System.Windows.Forms.ToolStripButton();
+            this.toolStripLabelKind = new System.Windows.Forms.ToolStripLabel();
+            this.toolStripComboKind = new System.Windows.Forms.ToolStripComboBox();
+            this.toolStripLabelCap = new System.Windows.Forms.ToolStripLabel();
+            this.toolStripTextBoxCap = new System.Windows.Forms.ToolStripTextBox();
+            this.toolStripButtonSmooth = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonMerge = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonLoop = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonAll = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonNone = new System.Windows.Forms.ToolStripButton();
             this.tab_Waypoint = new System.Windows.Forms.TabControl();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
@@ -145,6 +156,7 @@ namespace Frm_waypoint
             // 
             this.tabEditor.Controls.Add(this.skiaMapControl);
             this.tabEditor.Controls.Add(this.listBox);
+            this.tabEditor.Controls.Add(this.checkedListCaptures);
             this.tabEditor.Controls.Add(this.gridWaypoint);
             this.tabEditor.Controls.Add(this.toolStripEdit);
             this.tabEditor.Location = new System.Drawing.Point(8, 39);
@@ -179,6 +191,24 @@ namespace Frm_waypoint
             this.listBox.Size = new System.Drawing.Size(476, 1207);
             this.listBox.TabIndex = 24;
             this.listBox.SelectedIndexChanged += new System.EventHandler(this.ListBox_SelectedIndexChanged);
+            // 
+            // checkedListCaptures
+            // 
+            this.checkedListCaptures.BackColor = System.Drawing.SystemColors.Menu;
+            this.checkedListCaptures.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.checkedListCaptures.CheckOnClick = true;
+            this.checkedListCaptures.Dock = System.Windows.Forms.DockStyle.Right;
+            this.checkedListCaptures.Font = new System.Drawing.Font("Consolas", 9F);
+            this.checkedListCaptures.FormattingEnabled = true;
+            this.checkedListCaptures.IntegralHeight = false;
+            this.checkedListCaptures.Location = new System.Drawing.Point(1364, 48);
+            this.checkedListCaptures.Margin = new System.Windows.Forms.Padding(0);
+            this.checkedListCaptures.Name = "checkedListCaptures";
+            this.checkedListCaptures.Size = new System.Drawing.Size(476, 1207);
+            this.checkedListCaptures.TabIndex = 25;
+            this.checkedListCaptures.Visible = false;
+            this.checkedListCaptures.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CaptureList_ItemCheck);
+            this.checkedListCaptures.SelectedIndexChanged += new System.EventHandler(this.CaptureList_SelectedIndexChanged);
             // 
             // gridWaypoint
             // 
@@ -385,6 +415,16 @@ namespace Frm_waypoint
             this.toolStripSeparator1,
             this.toolStripButtonSettings,
             this.toolStripButtonLoadSniff,
+            this.toolStripButtonLoadDb,
+            this.toolStripLabelKind,
+            this.toolStripComboKind,
+            this.toolStripLabelCap,
+            this.toolStripTextBoxCap,
+            this.toolStripButtonSmooth,
+            this.toolStripButtonMerge,
+            this.toolStripButtonLoop,
+            this.toolStripButtonAll,
+            this.toolStripButtonNone,
             this.toolStripLabelRange});
             this.toolStripEdit.Location = new System.Drawing.Point(6, 6);
             this.toolStripEdit.Name = "toolStripEdit";
@@ -409,12 +449,12 @@ namespace Frm_waypoint
             // toolStripTextBoxEntry
             // 
             this.toolStripTextBoxEntry.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripTextBoxEntry.Enabled = false;
+            this.toolStripTextBoxEntry.Enabled = true;
             this.toolStripTextBoxEntry.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.toolStripTextBoxEntry.Name = "toolStripTextBoxEntry";
             this.toolStripTextBoxEntry.Size = new System.Drawing.Size(136, 42);
             this.toolStripTextBoxEntry.Tag = "";
-            this.toolStripTextBoxEntry.ToolTipText = "Input entry of creature or leave\r\nblank to fill listbox will all in sniff.";
+            this.toolStripTextBoxEntry.ToolTipText = "Entry id or part of a creature name.\r\nLoad Entry reads it from the database;\r\nSearch filters an imported sniff.";
             // 
             // toolStripLabelEntry
             // 
@@ -451,6 +491,96 @@ namespace Frm_waypoint
             this.toolStripButtonLoadSniff.Text = "Import Sniff";
             this.toolStripButtonLoadSniff.ToolTipText = "Import a parsed pkt sniff file.";
             this.toolStripButtonLoadSniff.Click += new System.EventHandler(this.ToolStripButtonLoadSniff_Click);
+            // 
+            // toolStripButtonLoadDb
+            // 
+            this.toolStripButtonLoadDb.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButtonLoadDb.Name = "toolStripButtonLoadDb";
+            this.toolStripButtonLoadDb.Size = new System.Drawing.Size(150, 36);
+            this.toolStripButtonLoadDb.Text = "Load Entry";
+            this.toolStripButtonLoadDb.ToolTipText = "Load every capture of an entry from the ingest database.";
+            this.toolStripButtonLoadDb.Click += new System.EventHandler(this.ToolStripButtonLoadDb_Click);
+            // 
+            // toolStripLabelKind
+            // 
+            this.toolStripLabelKind.Name = "toolStripLabelKind";
+            this.toolStripLabelKind.Size = new System.Drawing.Size(60, 39);
+            this.toolStripLabelKind.Text = "Show:";
+            // 
+            // toolStripComboKind
+            // 
+            this.toolStripComboKind.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.toolStripComboKind.Items.AddRange(new object[] {
+            "All points",
+            "Order destinations",
+            "Splines only",
+            "Single destinations only",
+            "Points only (no lines)"});
+            this.toolStripComboKind.Name = "toolStripComboKind";
+            this.toolStripComboKind.Size = new System.Drawing.Size(260, 39);
+            this.toolStripComboKind.ToolTipText = "Which points to draw.\r\nOrder destinations throws away the interior of every multi point packet,\r\nwhich is the navmesh corridor the server solved rather than anything\r\nauthored. Flight keeps its whole spline.";
+            this.toolStripComboKind.SelectedIndexChanged += new System.EventHandler(this.PointFilter_Changed);
+            // 
+            // toolStripLabelCap
+            // 
+            this.toolStripLabelCap.Name = "toolStripLabelCap";
+            this.toolStripLabelCap.Size = new System.Drawing.Size(60, 39);
+            this.toolStripLabelCap.Text = "Max:";
+            // 
+            // toolStripTextBoxCap
+            // 
+            this.toolStripTextBoxCap.Name = "toolStripTextBoxCap";
+            this.toolStripTextBoxCap.Size = new System.Drawing.Size(70, 39);
+            this.toolStripTextBoxCap.Text = "150";
+            this.toolStripTextBoxCap.ToolTipText = "How many captures to draw at once, strongest first.";
+            //
+            // toolStripButtonSmooth
+            //
+            this.toolStripButtonSmooth.CheckOnClick = true;
+            this.toolStripButtonSmooth.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButtonSmooth.Name = "toolStripButtonSmooth";
+            this.toolStripButtonSmooth.Size = new System.Drawing.Size(100, 36);
+            this.toolStripButtonSmooth.Text = "Smooth";
+            this.toolStripButtonSmooth.ToolTipText = "Keep only what the miner would keep: a position hit by two separate\r\nmove orders, and a step between two such positions walked twice.\r\nRandom movement never repeats a destination, so recurrence is what\r\nseparates an authored route from wander.";
+            this.toolStripButtonSmooth.CheckedChanged += new System.EventHandler(this.PointFilter_Changed);
+            //
+            // toolStripButtonMerge
+            //
+            this.toolStripButtonMerge.CheckOnClick = true;
+            this.toolStripButtonMerge.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButtonMerge.Name = "toolStripButtonMerge";
+            this.toolStripButtonMerge.Size = new System.Drawing.Size(90, 36);
+            this.toolStripButtonMerge.Text = "Merge";
+            this.toolStripButtonMerge.ToolTipText = "Walk the confirmed steps of every drawn capture into one route each,\r\ninstead of one line per capture. Dozens of sniffs that each saw a slice\r\nof the same path overlap, and the pooled graph is the path they were\r\nall fragments of. Click a route to list its points in order.";
+            this.toolStripButtonMerge.CheckedChanged += new System.EventHandler(this.PointFilter_Changed);
+            //
+            // toolStripButtonLoop
+            //
+            this.toolStripButtonLoop.CheckOnClick = true;
+            this.toolStripButtonLoop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButtonLoop.Name = "toolStripButtonLoop";
+            this.toolStripButtonLoop.Size = new System.Drawing.Size(80, 36);
+            this.toolStripButtonLoop.Text = "Loop";
+            this.toolStripButtonLoop.ToolTipText = "Cut each capture down to the circuit it repeats, so what is drawn and\r\nlisted is one lap instead of every lap. A line patrol reads as its full\r\nthere and back, which is the shortest thing it actually repeats.";
+            this.toolStripButtonLoop.CheckedChanged += new System.EventHandler(this.PointFilter_Changed);
+            // 
+            // toolStripButtonAll
+            // 
+            this.toolStripButtonAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButtonAll.Name = "toolStripButtonAll";
+            this.toolStripButtonAll.Size = new System.Drawing.Size(110, 36);
+            this.toolStripButtonAll.Text = "Select All";
+            this.toolStripButtonAll.ToolTipText = "Draw every loaded capture again.";
+            this.toolStripButtonAll.Click += new System.EventHandler(this.ToolStripButtonAll_Click);
+            // 
+            // toolStripButtonNone
+            // 
+            this.toolStripButtonNone.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripButtonNone.Name = "toolStripButtonNone";
+            this.toolStripButtonNone.Size = new System.Drawing.Size(130, 36);
+            this.toolStripButtonNone.Text = "Deselect All";
+            this.toolStripButtonNone.ToolTipText = "Clear the map, then tick back the ones you want.\r\nClicking a capture on the map keeps that one alone.";
+            this.toolStripButtonNone.Click += new System.EventHandler(this.ToolStripButtonNone_Click);
             // 
             // toolStripLabelRange
             // 
@@ -535,6 +665,17 @@ namespace Frm_waypoint
         private System.Windows.Forms.TabPage tabEditor;
         private SkiaSharp.Views.Desktop.SKGLControl skiaMapControl;
         private System.Windows.Forms.ListBox listBox;
+        private System.Windows.Forms.CheckedListBox checkedListCaptures;
+        private System.Windows.Forms.ToolStripButton toolStripButtonLoadDb;
+        private System.Windows.Forms.ToolStripLabel toolStripLabelKind;
+        private System.Windows.Forms.ToolStripComboBox toolStripComboKind;
+        private System.Windows.Forms.ToolStripLabel toolStripLabelCap;
+        private System.Windows.Forms.ToolStripTextBox toolStripTextBoxCap;
+        private System.Windows.Forms.ToolStripButton toolStripButtonSmooth;
+        private System.Windows.Forms.ToolStripButton toolStripButtonMerge;
+        private System.Windows.Forms.ToolStripButton toolStripButtonLoop;
+        private System.Windows.Forms.ToolStripButton toolStripButtonAll;
+        private System.Windows.Forms.ToolStripButton toolStripButtonNone;
         private System.Windows.Forms.DataGridView gridWaypoint;
         private System.Windows.Forms.DataGridViewTextBoxColumn gridColumn_no;
         private System.Windows.Forms.DataGridViewTextBoxColumn gridColumn_x;

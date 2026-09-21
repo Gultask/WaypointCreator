@@ -1,10 +1,26 @@
-*.exe
-*.manifest
-*.resources
+## Build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
 *.pdb
-*.dll
+
+## NuGet packages, restored from packages.config
+packages/
+*.nupkg
+*.snupkg
+
+## Visual Studio per-user state
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 *.cache
 *.Cache
-Debug/
-Release/
-.vs/
+
+## Client derived minimap tiles and the map list they need
+world/
+map.csv
